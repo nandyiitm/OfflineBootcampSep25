@@ -20,15 +20,20 @@ api.add_resource(HelloWorld, '/')
 class Registration(Resource):
     def post(self):
         data = request.get_json()
-        if not data or 'email' not in data or 'password' not in data:
-            return {'message': 'Email and password are required!'}, 400
         
+        # 400 Bad Request → Missing fields
+        if not data or 'email' not in data or 'password' not in data or not data['email'] or not data['password']:
+            return {'message': 'Email and/or password are required!'}, 400
+        
+        # 409 Conflict → User already exists
         existing_user = User.query.filter_by(email=data['email']).first()
         if existing_user:
-            return {'message': 'User already exists!'}, 400
+            return {'message': 'User already exists!'}, 409
         
+        # 201 Created → Success
         new_user = User(email=data['email'], password=data['password'])
-        db.session.add(new_user); db.session.commit()
+        db.session.add(new_user)
+        db.session.commit()
 
         return {'message': 'User registered successfully!'}, 201
 api.add_resource(Registration, '/register')
@@ -36,8 +41,8 @@ api.add_resource(Registration, '/register')
 class Login(Resource):
     def post(self):
         data = request.get_json()
-        if not data or 'email' not in data or 'password' not in data:
-            return {'message': 'Email and password are required!'}, 400
+        if not data or 'email' not in data or 'password' not in data or not data['email'] or not data['password']:
+            return {'message': 'Email and/or password are required!'}, 400
         
         user = User.query.filter_by(email=data['email'], password=data['password']).first()
         if not user:

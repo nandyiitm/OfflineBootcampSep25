@@ -40,6 +40,11 @@ const router = createRouter({
       name: 'admin-dashboard',
       component: () => import('../views/admin/Dashboard.vue'),
     },
+    {
+      path: '/admin/pizza/:id',
+      name: 'admin-pizza-detail',
+      component: () => import('../views/admin/Pizza.vue'),
+    },
   ],
 })
 
