@@ -9,6 +9,12 @@ jwt = JWTManager(app)
 
 CORS(app)
 
+# cache configuration
+from routes import cache
+app.config['CACHE_TYPE'] = 'RedisCache'
+app.config['CACHE_REDIS_URL'] = 'redis://localhost:6379/0'
+cache.init_app(app)
+
 # connecting to database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 from models import db, User

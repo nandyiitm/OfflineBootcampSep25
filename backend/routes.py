@@ -1,6 +1,9 @@
 from flask_restful import Api, Resource
 from flask import request
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_caching import Cache
+
+cache = Cache()
 
 from models import db, User, Pizza
 
@@ -54,10 +57,13 @@ class Login(Resource):
 api.add_resource(Login, '/login')
 
 ## USER endpoints
+import time
 
 class PizzaAPI(Resource):
     @jwt_required()
+    @cache.cached(timeout=30, key_prefix='pizza_api_get')
     def get(self, pizza_id=None):
+        time.sleep(5)
         if pizza_id:
             pizza = Pizza.query.get(pizza_id)
             if not pizza:
@@ -80,6 +86,7 @@ class PizzaAPI(Resource):
         
         pizza = Pizza(name=data['name'], toppings=data.get('toppings', False))
         db.session.add(pizza); db.session.commit()
+        cache.delete('pizza_api_get')
         
         return {'message': 'Pizza created!'}, 201
     
@@ -105,6 +112,7 @@ class PizzaAPI(Resource):
         pizza.name = data.get('name', pizza.name)
         pizza.toppings = data.get('toppings', pizza.toppings)
         db.session.commit()
+        cache.delete('pizza_api_get')
         
         return {'message': 'Pizza updated!'}, 200
     
@@ -122,6 +130,7 @@ class PizzaAPI(Resource):
             return {'message': 'Pizza not found!'}, 404
         
         db.session.delete(pizza); db.session.commit()
+        cache.delete('pizza_api_get')
 
         return {'message': 'Pizza deleted!'}, 200
     
