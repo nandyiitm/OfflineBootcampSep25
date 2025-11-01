@@ -25,7 +25,7 @@ from routes import api
 api.init_app(app)
 
 if __name__ == '__main__':
-    
+        
     with app.app_context():
 
         db.create_all()  # Create database tables for our data models
