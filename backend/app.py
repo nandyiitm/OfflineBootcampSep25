@@ -33,7 +33,7 @@ if __name__ == '__main__':
         admin = User.query.filter_by(email='admin@gmail.com').first()
 
         if not admin:
-            admin = User(email='admin@gmail.com', password='admin', role='admin')
+            admin = User(email='admin@gmail.com', password='admin', role='admin', name='Admin User')
             db.session.add(admin); db.session.commit()
             print("Admin user created with email: admin@gmail.com and password: admin")
         else:

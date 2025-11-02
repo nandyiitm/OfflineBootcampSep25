@@ -25,8 +25,8 @@ class Registration(Resource):
         data = request.get_json()
         
         # 400 Bad Request → Missing fields
-        if not data or 'email' not in data or 'password' not in data or not data['email'] or not data['password']:
-            return {'message': 'Email and/or password are required!'}, 400
+        if not data or 'email' not in data or 'password' not in data or 'name' not in data or not data['email'] or not data['password'] or not data['name']:
+            return {'message': 'Email, Name and/or password are required!'}, 400
         
         # 409 Conflict → User already exists
         existing_user = User.query.filter_by(email=data['email']).first()
@@ -34,7 +34,7 @@ class Registration(Resource):
             return {'message': 'User already exists!'}, 409
         
         # 201 Created → Success
-        new_user = User(email=data['email'], password=data['password'])
+        new_user = User(email=data['email'], password=data['password'], name=data['name'])
         db.session.add(new_user)
         db.session.commit()
 
@@ -135,3 +135,11 @@ class PizzaAPI(Resource):
         return {'message': 'Pizza deleted!'}, 200
     
 api.add_resource(PizzaAPI, '/pizza', '/pizza/<int:pizza_id>')
+
+class DownloadPizzaAsCSV(Resource):
+    def get(self):
+        from celery_app import export_csv
+        export_csv.delay(email='user@gmail.com')
+        return 'pizzas csv file generation started! will send a mail when completed!'
+
+api.add_resource(DownloadPizzaAsCSV, '/api/export/pizzas')

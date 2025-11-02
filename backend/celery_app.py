@@ -20,7 +20,7 @@ from models import User
 
 @celeryApp.task()
 def daily_reminder():
-
+    print('started daily reminders')
     with app.app_context():
         for user in User.query.all():
             to = user.email
@@ -41,12 +41,32 @@ def monthly_newsletter():
     return "Monthly newsletters sent!"
 
 @celeryApp.task()
-def export_csv():
+def export_csv(email):
+    import time
+    time.sleep(30)
     # Placeholder for CSV export logic
     # This function would contain the logic to export data to a CSV file
+    to = email
+    subject = "CSV export done"
+    body = """<a href="http://127.0.0.1:5000/static/export_file.csv">Click here to download file</a>"""
+    send_email(to, subject, body)
     return "CSV export completed!"
 
 
 # schedule tasks
+from celery.schedules import crontab
+import datetime
+
+celeryApp.conf.beat_schedule = {
+    'daily_reminders': {
+        'task': 'celery_app.daily_reminder',
+        'schedule': crontab(hour=16, minute=53) # every day
+        # 'schedule': datetime.timedelta(seconds=3) # every 3 seconds
+    },
+    'montly_reminders': {
+        'task': 'celery_app.monthly_reminder',
+        'schedule': crontab(day_of_month=2, hour=16, minute=30)
+    }
+}
 
 
