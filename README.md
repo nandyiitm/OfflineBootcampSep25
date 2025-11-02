@@ -21,3 +21,16 @@ cd frontend
 npm install
 npm run dev
 ```
+
+## BackendJobs
+make sure redis and mailhog is working in background
+
+### Celery Worker
+```
+celery -A celery_app.celeryApp worker --loglevel=info
+# for windows add --pool=solo
+```
+### Celery Beat
+```
+celery -A celery_app.celeryApp beat --loglevel=info
+```
